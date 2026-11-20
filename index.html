@@ -1,0 +1,110 @@
+<html>
+<head>
+<style>
+body {
+    font-family: Arial;
+    background-color: lightgray;
+    text-align: center;
+}
+
+h1 {
+    color: purple;
+     text-align: center;
+}
+
+input {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid black;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: purple;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color:blue;
+}
+
+#result {
+    margin: 20px auto;
+    padding: 20px;
+    background-color: lightblue;
+    border-radius: 5px;
+    width: 350px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>WEATHER INFORMATION</h1>
+<br>
+<hr>
+
+<input type="text" id="city" placeholder="Enter a Name"><br><br>
+<button onclick="GetData()">GetData</button>
+
+<div id="result"></div>
+
+<script>
+
+function GetData()
+{
+let place = document.getElementById("city").value;
+
+if(place == "")
+{
+alert("Please enter a city name");
+return;
+}
+
+fetch("https://geocoding-api.open-meteo.com/v1/search?name="+place+"&count=1")
+.then(response => response.json())
+.then(data => {
+
+if(!data.results)
+{
+alert("City not found");
+return;
+}
+
+let longitude = data.results[0].longitude;
+let latitude = data.results[0].latitude;
+
+weather_details(longitude, latitude);
+})
+.catch(error => console.log(error));
+}
+
+function weather_details(lo,la)
+{
+
+fetch("https://api.open-meteo.com/v1/forecast?latitude="+la+
+"&longitude="+lo+
+"&current=temperature_2m,relative_humidity_2m"+
+"&daily=temperature_2m_max,relative_humidity_2m_max&timezone=auto")
+.then(response=> response.json())
+.then(data => 
+{
+document.getElementById("result").innerHTML =
+
+"City Temperature: " + data.daily.temperature_2m_max[0] + " Celsius<br><br>" +
+
+"City Humidity: " + data.daily.relative_humidity_2m_max[0] + " %<br><br>" +
+
+"Current Temperature: " + data.current.temperature_2m + " Celsius<br><br>" +
+
+"Current Humidity: " + data.current.relative_humidity_2m + " %";
+})
+.catch(error => console.log(error));
+}
+
+</script>
+</body>
+</html>
